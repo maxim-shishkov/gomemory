@@ -17,27 +17,16 @@ func (c *Compute) Parse(text string) (Query, error) {
 		return Query{}, fmt.Errorf("empty command")
 	}
 
-	var query Query
+	command := fields[0]
+	args := fields[1:]
 
-	switch fields[0] {
-	case CommandSET:
-		query = Query{
-			command: CommandSET,
-			args:    fields[1:],
-		}
-	case CommandGET:
-		query = Query{
-			command: CommandGET,
-			args:    fields[1:],
-		}
-	case CommandDEL:
-		query = Query{
-			command: CommandDEL,
-			args:    fields[1:],
-		}
+	switch command {
+	case CommandSET, CommandGET, CommandDEL:
+		return Query{
+			command: command,
+			args:    args,
+		}, nil
 	default:
 		return Query{}, fmt.Errorf("unknown command")
 	}
-
-	return query, nil
 }

@@ -9,8 +9,6 @@ import (
 	"go.uber.org/zap"
 )
 
-var _ Storer = &Storage{}
-
 type Storer interface {
 	Set(ctx context.Context, key, value string) error
 	Get(ctx context.Context, key string) (string, error)
@@ -34,19 +32,24 @@ func NewDataBase(storage Storer, logger *zap.Logger) *DataBase {
 }
 
 func (d *DataBase) Query(ctx context.Context, query parser.Query) (string, error) {
+	args := query.Args()
+
+	if len(args) == 0 {
+		return "", fmt.Errorf("no arguments provided")
+	}
+
 	var val string
 	var err error
+	key := args[0]
 
 	switch query.Command() {
 	case parser.CommandSET:
-		arg := strings.Join(query.Args()[1:], " ")
-		err = d.storage.Set(ctx, query.Args()[0], arg)
+		value := strings.Join(query.Args()[1:], " ")
+		err = d.storage.Set(ctx, key, value)
 	case parser.CommandGET:
-		arg := query.Args()[0]
-		val, err = d.storage.Get(ctx, arg)
+		val, err = d.storage.Get(ctx, key)
 	case parser.CommandDEL:
-		arg := query.Args()[0]
-		err = d.storage.Del(ctx, arg)
+		err = d.storage.Del(ctx, key)
 	default:
 		d.logger.Error("unknown command")
 		return "", fmt.Errorf("unknown command")

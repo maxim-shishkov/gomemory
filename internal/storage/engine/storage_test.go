@@ -3,7 +3,6 @@ package engine
 import (
 	"context"
 	"fmt"
-	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -14,7 +13,6 @@ func TestStorage(t *testing.T) {
 
 	s := &Storage{
 		memory: make(map[string]string),
-		mx:     &sync.Mutex{},
 	}
 	key := "key"
 
